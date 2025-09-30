@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { ReportIncidentForm } from "@/components/forms/ReportIncidentForm";
 import { 
   AlertTriangle, 
   Plus, 
@@ -190,10 +191,7 @@ export default function Incidents() {
           <h1 className="text-3xl font-bold">Incident Management</h1>
           <p className="text-muted-foreground">Track and respond to operational incidents</p>
         </div>
-        <Button className="gradient-primary">
-          <Plus className="w-4 h-4 mr-2" />
-          Report Incident
-        </Button>
+        <ReportIncidentForm />
       </div>
 
       {/* Stats Cards */}

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
+import { AddComplianceForm } from "@/components/forms/AddComplianceForm";
 import { 
   FileCheck, 
   Plus, 
@@ -168,10 +169,7 @@ export default function Compliance() {
           <h1 className="text-3xl font-bold">Compliance Management</h1>
           <p className="text-muted-foreground">Manage regulatory compliance and control frameworks</p>
         </div>
-        <Button className="gradient-primary">
-          <Plus className="w-4 h-4 mr-2" />
-          New Control Test
-        </Button>
+        <AddComplianceForm />
       </div>
 
       {/* Stats Cards */}

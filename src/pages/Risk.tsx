@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { AddRiskForm } from "@/components/forms/AddRiskForm";
 import { 
   Shield, 
   Plus, 
@@ -140,10 +141,7 @@ export default function Risk() {
           <h1 className="text-3xl font-bold">Risk Management</h1>
           <p className="text-muted-foreground">Identify, assess, and mitigate organizational risks</p>
         </div>
-        <Button className="gradient-primary">
-          <Plus className="w-4 h-4 mr-2" />
-          New Risk
-        </Button>
+        <AddRiskForm />
       </div>
 
       {/* Stats Cards */}

@@ -2,6 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { AddAuditForm } from "@/components/forms/AddAuditForm";
 import { 
   Search, 
   Plus, 
@@ -154,10 +155,7 @@ export default function Audit() {
           <h1 className="text-3xl font-bold">Audit Management</h1>
           <p className="text-muted-foreground">Plan, execute, and track internal and external audits</p>
         </div>
-        <Button className="gradient-primary">
-          <Plus className="w-4 h-4 mr-2" />
-          New Audit
-        </Button>
+        <AddAuditForm />
       </div>
 
       {/* Stats Cards */}

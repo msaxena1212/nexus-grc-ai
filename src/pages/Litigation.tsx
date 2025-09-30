@@ -1,6 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { AddLitigationForm } from "@/components/forms/AddLitigationForm";
 import { 
   Scale, 
   Plus, 
@@ -157,10 +158,7 @@ export default function Litigation() {
           <h1 className="text-3xl font-bold">Litigation Management</h1>
           <p className="text-muted-foreground">Manage legal matters and discovery processes</p>
         </div>
-        <Button className="gradient-primary">
-          <Plus className="w-4 h-4 mr-2" />
-          New Matter
-        </Button>
+        <AddLitigationForm />
       </div>
 
       {/* Stats Cards */}

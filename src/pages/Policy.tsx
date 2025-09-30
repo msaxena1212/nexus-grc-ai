@@ -2,6 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { AddPolicyForm } from "@/components/forms/AddPolicyForm";
 import { 
   FileText, 
   Plus, 
@@ -146,10 +147,7 @@ export default function Policy() {
           <h1 className="text-3xl font-bold">Policy Management</h1>
           <p className="text-muted-foreground">Create, distribute, and track organizational policies</p>
         </div>
-        <Button className="gradient-primary">
-          <Plus className="w-4 h-4 mr-2" />
-          New Policy
-        </Button>
+        <AddPolicyForm />
       </div>
 
       {/* Stats Cards */}
