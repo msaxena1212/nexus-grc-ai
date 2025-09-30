@@ -142,7 +142,7 @@
 @layer components {
   /* Enterprise module cards */
   .module-card {
-    @apply bg-card border border-border rounded-xl p-6 transition-all duration-300 hover:shadow-lg hover:border-primary/20 group;
+    @apply bg-card border border-border rounded-xl p-6 transition-all duration-300 hover:shadow-lg hover:border-primary/20;
   }
 
   /* Status badges */
