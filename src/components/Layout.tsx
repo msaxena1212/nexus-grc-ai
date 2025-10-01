@@ -11,10 +11,17 @@ import {
   Settings, 
   Menu,
   X,
-  Home
+  Home,
+  Beaker,
+  Droplets,
+  Package,
+  Building2,
+  Users,
+  LogOut
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/hooks/useAuth";
 
 const navigation = [
   { name: "Dashboard", href: "/", icon: Home },
@@ -25,11 +32,17 @@ const navigation = [
   { name: "Policy", href: "/policy", icon: FileText },
   { name: "Incidents", href: "/incidents", icon: AlertTriangle },
   { name: "Analytics", href: "/analytics", icon: BarChart3 },
+  { name: "Chemicals", href: "/chemicals", icon: Beaker },
+  { name: "Environmental", href: "/environmental", icon: Droplets },
+  { name: "Products", href: "/products", icon: Package },
+  { name: "Organizations", href: "/organizations", icon: Building2 },
+  { name: "Users", href: "/users", icon: Users },
 ];
 
 export default function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
+  const { signOut } = useAuth();
 
   return (
     <div className="min-h-screen bg-background">
@@ -85,14 +98,21 @@ export default function Layout() {
           })}
         </nav>
 
-        <div className="p-4 border-t border-border">
+        <div className="p-4 border-t border-border space-y-1">
           <Button
             variant="ghost"
             className="w-full justify-start"
-            onClick={() => setSidebarOpen(false)}
           >
             <Settings className="w-5 h-5 mr-3" />
             Settings
+          </Button>
+          <Button
+            variant="ghost"
+            className="w-full justify-start text-destructive hover:text-destructive"
+            onClick={signOut}
+          >
+            <LogOut className="w-5 h-5 mr-3" />
+            Logout
           </Button>
         </div>
       </div>
