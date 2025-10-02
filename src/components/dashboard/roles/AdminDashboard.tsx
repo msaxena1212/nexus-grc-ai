@@ -1,7 +1,12 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, Shield, Building2, Activity } from "lucide-react";
+import { Users, Shield, Building2, Activity, AlertTriangle, CheckCircle } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 export default function AdminDashboard() {
+  const navigate = useNavigate();
+
   return (
     <div className="space-y-6">
       <div>
@@ -53,6 +58,64 @@ export default function AdminDashboard() {
           <CardContent>
             <div className="text-2xl font-bold">3</div>
             <p className="text-xs text-muted-foreground">Requires attention</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* System-Wide Activity */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Active Risks Across Organizations</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {[
+                { org: "AkzoNobel Europe", high: 12, medium: 28, low: 45 },
+                { org: "AkzoNobel Americas", high: 8, medium: 24, low: 38 },
+                { org: "AkzoNobel Asia Pacific", high: 6, medium: 19, low: 31 }
+              ].map((item, idx) => (
+                <div key={idx} className="flex justify-between items-center p-3 rounded border">
+                  <span className="font-medium text-sm">{item.org}</span>
+                  <div className="flex gap-2">
+                    <Badge className="status-high">{item.high} High</Badge>
+                    <Badge className="status-medium">{item.medium} Med</Badge>
+                    <Badge className="status-low">{item.low} Low</Badge>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <Button variant="outline" className="w-full mt-4" onClick={() => navigate('/risk')}>
+              View All Risks
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Recent Incidents</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {[
+                { title: "Database Connection Timeout", severity: "High", status: "Open" },
+                { title: "Unauthorized Access Attempt", severity: "Critical", status: "Investigating" },
+                { title: "Payment Processing Error", severity: "High", status: "Resolved" }
+              ].map((incident, idx) => (
+                <div key={idx} className="flex justify-between items-center p-3 rounded border">
+                  <div>
+                    <div className="font-medium text-sm">{incident.title}</div>
+                    <Badge variant="secondary" className="mt-1 text-xs">{incident.severity}</Badge>
+                  </div>
+                  <Badge className={incident.status === 'Resolved' ? 'status-low' : 'status-high'}>
+                    {incident.status}
+                  </Badge>
+                </div>
+              ))}
+            </div>
+            <Button variant="outline" className="w-full mt-4" onClick={() => navigate('/incidents')}>
+              View All Incidents
+            </Button>
           </CardContent>
         </Card>
       </div>

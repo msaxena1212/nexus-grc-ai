@@ -4,6 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { AddRiskForm } from "@/components/forms/AddRiskForm";
+import RiskHeatmap from "@/components/RiskHeatmap";
+import { RiskDetailsDialog } from "@/components/dialogs/RiskDetailsDialog";
+import { EditRiskDialog } from "@/components/dialogs/EditRiskDialog";
+import { UpdateAssessmentDialog } from "@/components/dialogs/UpdateAssessmentDialog";
 import { 
   Shield, 
   Plus, 
@@ -126,12 +130,36 @@ const getStatusColor = (status: string) => {
 
 export default function Risk() {
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedRisk, setSelectedRisk] = useState<typeof riskData[0] | null>(null);
+  const [detailsOpen, setDetailsOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+  const [assessmentOpen, setAssessmentOpen] = useState(false);
 
   const filteredRisks = riskData.filter(risk =>
     risk.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     risk.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
     risk.owner.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const handleViewDetails = (risk: typeof riskData[0]) => {
+    setSelectedRisk(risk);
+    setDetailsOpen(true);
+  };
+
+  const handleEditRisk = (risk: typeof riskData[0]) => {
+    setSelectedRisk(risk);
+    setEditOpen(true);
+  };
+
+  const handleUpdateAssessment = (risk: typeof riskData[0]) => {
+    setSelectedRisk(risk);
+    setAssessmentOpen(true);
+  };
+
+  const handleArchiveRisk = (risk: typeof riskData[0]) => {
+    // Archive risk logic
+    console.log("Archiving risk:", risk.id);
+  };
 
   return (
     <div className="space-y-6">
@@ -287,10 +315,19 @@ export default function Risk() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem>View Details</DropdownMenuItem>
-                        <DropdownMenuItem>Edit Risk</DropdownMenuItem>
-                        <DropdownMenuItem>Update Assessment</DropdownMenuItem>
-                        <DropdownMenuItem className="text-destructive">
+                        <DropdownMenuItem onClick={() => handleViewDetails(risk)}>
+                          View Details
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleEditRisk(risk)}>
+                          Edit Risk
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleUpdateAssessment(risk)}>
+                          Update Assessment
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                          className="text-destructive"
+                          onClick={() => handleArchiveRisk(risk)}
+                        >
                           Archive Risk
                         </DropdownMenuItem>
                       </DropdownMenuContent>
@@ -303,23 +340,9 @@ export default function Risk() {
         </CardContent>
       </Card>
 
-      {/* Risk Heatmap Placeholder */}
+      {/* Risk Heatmap */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Risk Heatmap</CardTitle>
-            <CardDescription>Visual representation of risk probability vs impact</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="h-64 bg-gradient-to-br from-success/10 via-warning/10 to-destructive/10 rounded-lg flex items-center justify-center">
-              <div className="text-center">
-                <TrendingUp className="w-12 h-12 mx-auto text-muted-foreground mb-2" />
-                <p className="text-muted-foreground">Risk heatmap visualization</p>
-                <p className="text-sm text-muted-foreground">Interactive chart would appear here</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <RiskHeatmap />
 
         <Card>
           <CardHeader>
@@ -345,6 +368,27 @@ export default function Risk() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Dialogs */}
+      {selectedRisk && (
+        <>
+          <RiskDetailsDialog
+            open={detailsOpen}
+            onOpenChange={setDetailsOpen}
+            risk={selectedRisk}
+          />
+          <EditRiskDialog
+            open={editOpen}
+            onOpenChange={setEditOpen}
+            risk={selectedRisk}
+          />
+          <UpdateAssessmentDialog
+            open={assessmentOpen}
+            onOpenChange={setAssessmentOpen}
+            riskId={selectedRisk.id}
+          />
+        </>
+      )}
     </div>
   );
 }
