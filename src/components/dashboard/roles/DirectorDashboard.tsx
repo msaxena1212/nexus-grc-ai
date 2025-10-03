@@ -1,8 +1,9 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { TrendingUp, Shield, AlertTriangle, Activity, FileText, Users } from "lucide-react";
+import { TrendingUp, Shield, AlertTriangle, Activity, FileText, Users, Target, BarChart3 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import { Progress } from "@/components/ui/progress";
 
 export default function DirectorDashboard() {
   const navigate = useNavigate();
@@ -195,14 +196,191 @@ export default function DirectorDashboard() {
         </Card>
       </div>
 
+      {/* Strategic Metrics & KPIs */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card>
+          <CardHeader>
+            <div className="flex justify-between items-center">
+              <CardTitle>Risk Reduction Trends</CardTitle>
+              <TrendingUp className="h-5 w-5 text-green-600" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <span className="text-sm">Q1 2025 vs Q4 2024</span>
+                <Badge className="bg-green-100 text-green-800 hover:bg-green-100">-12% High Risks</Badge>
+              </div>
+              {[
+                { category: "Operational Risks", reduction: 18, target: 20 },
+                { category: "Financial Risks", reduction: 15, target: 15 },
+                { category: "Compliance Risks", reduction: 22, target: 25 },
+                { category: "Strategic Risks", reduction: 10, target: 15 }
+              ].map((item, idx) => (
+                <div key={idx} className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span>{item.category}</span>
+                    <span className="text-muted-foreground">{item.reduction}% / {item.target}%</span>
+                  </div>
+                  <Progress value={(item.reduction / item.target) * 100} className="h-2" />
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <div className="flex justify-between items-center">
+              <CardTitle>Strategic Initiatives</CardTitle>
+              <Target className="h-5 w-5 text-blue-600" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {[
+                { title: "ESG Reporting Framework", progress: 75, status: "On Track" },
+                { title: "Global Risk Assessment Program", progress: 60, status: "In Progress" },
+                { title: "Compliance Automation", progress: 40, status: "Planning" },
+                { title: "Third-Party Risk Management", progress: 85, status: "Near Completion" }
+              ].map((initiative, idx) => (
+                <div key={idx} className="p-3 rounded border">
+                  <div className="flex justify-between items-start mb-2">
+                    <div>
+                      <div className="font-medium text-sm">{initiative.title}</div>
+                      <div className="text-xs text-muted-foreground mt-1">{initiative.status}</div>
+                    </div>
+                    <span className="text-sm font-bold">{initiative.progress}%</span>
+                  </div>
+                  <Progress value={initiative.progress} className="h-1.5" />
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Executive Summary & Regional Performance */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Regional Performance Overview</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {[
+                { region: "Europe", compliance: 92, risks: "Low", audits: 8 },
+                { region: "Americas", compliance: 89, risks: "Medium", audits: 12 },
+                { region: "Asia Pacific", compliance: 87, risks: "Medium", audits: 6 },
+                { region: "Middle East & Africa", compliance: 84, risks: "High", audits: 4 }
+              ].map((region, idx) => (
+                <div key={idx} className="p-3 rounded border">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="font-medium">{region.region}</span>
+                    <Badge className={
+                      region.risks === 'Low' ? 'bg-green-100 text-green-800 hover:bg-green-100' :
+                      region.risks === 'Medium' ? 'bg-yellow-100 text-yellow-800 hover:bg-yellow-100' :
+                      'bg-red-100 text-red-800 hover:bg-red-100'
+                    }>
+                      {region.risks} Risk
+                    </Badge>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <div className="text-muted-foreground">Compliance</div>
+                      <div className="font-semibold">{region.compliance}%</div>
+                    </div>
+                    <div>
+                      <div className="text-muted-foreground">Active Audits</div>
+                      <div className="font-semibold">{region.audits}</div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <div className="flex justify-between items-center">
+              <CardTitle>Executive KPIs</CardTitle>
+              <BarChart3 className="h-5 w-5 text-primary" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="p-4 rounded bg-muted">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-sm font-medium">GRC Maturity Score</span>
+                  <span className="text-2xl font-bold text-green-600">3.8/5</span>
+                </div>
+                <Progress value={76} className="h-2" />
+                <p className="text-xs text-muted-foreground mt-2">Target: 4.2 by Q3 2025</p>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-3">
+                <div className="p-3 rounded border">
+                  <div className="text-xs text-muted-foreground">Budget Utilization</div>
+                  <div className="text-xl font-bold">68%</div>
+                  <div className="text-xs text-green-600 mt-1">Under budget</div>
+                </div>
+                <div className="p-3 rounded border">
+                  <div className="text-xs text-muted-foreground">Avg Resolution Time</div>
+                  <div className="text-xl font-bold">4.2d</div>
+                  <div className="text-xs text-green-600 mt-1">-8% vs last Q</div>
+                </div>
+                <div className="p-3 rounded border">
+                  <div className="text-xs text-muted-foreground">Risk Appetite</div>
+                  <div className="text-xl font-bold">72%</div>
+                  <div className="text-xs text-muted-foreground mt-1">Within limits</div>
+                </div>
+                <div className="p-3 rounded border">
+                  <div className="text-xs text-muted-foreground">Training Completion</div>
+                  <div className="text-xl font-bold">94%</div>
+                  <div className="text-xs text-green-600 mt-1">+6% vs target</div>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
       <Card>
         <CardHeader>
-          <CardTitle>Executive Summary</CardTitle>
+          <CardTitle>Executive Summary & Strategic Focus</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-muted-foreground">
-            Strategic GRC initiatives and key performance indicators across all business units.
-          </p>
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              Strategic GRC oversight across all business units with focus on risk mitigation, 
+              regulatory compliance, and operational excellence. Current priorities include ESG 
+              reporting enhancement, third-party risk management, and compliance automation initiatives.
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+              <div className="p-4 rounded border bg-muted">
+                <Shield className="h-6 w-6 mb-2 text-primary" />
+                <h3 className="font-semibold text-sm mb-1">Risk Governance</h3>
+                <p className="text-xs text-muted-foreground">
+                  Enterprise-wide risk framework oversight and policy enforcement
+                </p>
+              </div>
+              <div className="p-4 rounded border bg-muted">
+                <FileText className="h-6 w-6 mb-2 text-primary" />
+                <h3 className="font-semibold text-sm mb-1">Compliance Leadership</h3>
+                <p className="text-xs text-muted-foreground">
+                  Multi-framework compliance strategy and regulatory monitoring
+                </p>
+              </div>
+              <div className="p-4 rounded border bg-muted">
+                <Users className="h-6 w-6 mb-2 text-primary" />
+                <h3 className="font-semibold text-sm mb-1">Stakeholder Management</h3>
+                <p className="text-xs text-muted-foreground">
+                  Board reporting, audit committee liaison, and executive engagement
+                </p>
+              </div>
+            </div>
+          </div>
         </CardContent>
       </Card>
     </div>
