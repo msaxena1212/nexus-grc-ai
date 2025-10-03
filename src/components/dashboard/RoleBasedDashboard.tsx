@@ -21,7 +21,7 @@ export default function RoleBasedDashboard() {
           .from('user_roles')
           .select('role')
           .eq('user_id', user.id)
-          .single();
+          .maybeSingle();
         
         setUserRole(roleData?.role || null);
       }

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Outlet, Link, useLocation } from "react-router-dom";
 import { 
   Shield, 
@@ -22,8 +22,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
-
-const navigation = [
+import { useUserRole } from "@/hooks/useUserRole";
+const NAV_ITEMS = [
   { name: "Dashboard", href: "/", icon: Home },
   { name: "Risk Management", href: "/risk", icon: Shield },
   { name: "Compliance", href: "/compliance", icon: FileCheck },
@@ -43,7 +43,14 @@ export default function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
   const { signOut } = useAuth();
-
+  const { role } = useUserRole();
+  const filteredNav = useMemo(() => {
+    if (role === 'audit_manager') {
+      const allowed = new Set(['Dashboard', 'Risk Management', 'Compliance', 'Audit']);
+      return NAV_ITEMS.filter((item) => allowed.has(item.name));
+    }
+    return NAV_ITEMS;
+  }, [role]);
   return (
     <div className="min-h-screen bg-background">
       {/* Mobile sidebar backdrop */}
@@ -77,7 +84,7 @@ export default function Layout() {
         </div>
 
         <nav className="flex-1 px-4 py-6 space-y-1">
-          {navigation.map((item) => {
+          {filteredNav.map((item) => {
             const isActive = location.pathname === item.href;
             return (
               <Link
@@ -133,7 +140,7 @@ export default function Layout() {
             
             <div className="flex-1 lg:flex-none">
               <h1 className="text-2xl font-semibold text-foreground">
-                {navigation.find(item => item.href === location.pathname)?.name || "GRC Platform"}
+                {filteredNav.find(item => item.href === location.pathname)?.name || "GRC Platform"}
               </h1>
             </div>
 
