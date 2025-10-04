@@ -1,56 +1,51 @@
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Users, UserPlus, Shield, Clock } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Users, UserCheck, Mail } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { InviteUserForm } from "@/components/forms/InviteUserForm";
+
+const getRoleDisplay = (role: string) => {
+  return role.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+};
 
 export default function UserManagement() {
-  const users = [
-    {
-      id: 1,
-      name: "Sarah Johnson",
-      email: "sarah.johnson@akzonobel.com",
-      role: "global_grc_director",
-      organization: "AkzoNobel Global",
-      department: "GRC",
-      lastActive: "2 hours ago",
-      status: "active"
-    },
-    {
-      id: 2,
-      name: "Michael Chen",
-      email: "michael.chen@akzonobel.com",
-      role: "environmental_compliance_officer",
-      organization: "AkzoNobel Americas",
-      department: "Environmental",
-      lastActive: "5 minutes ago",
-      status: "active"
-    },
-    {
-      id: 3,
-      name: "Emma Williams",
-      email: "emma.williams@akzonobel.com",
-      role: "chemical_safety_specialist",
-      organization: "AkzoNobel Europe",
-      department: "Safety",
-      lastActive: "1 day ago",
-      status: "active"
-    },
-    {
-      id: 4,
-      name: "David Brown",
-      email: "david.brown@akzonobel.com",
-      role: "site_manager",
-      organization: "AkzoNobel Americas - Texas Plant",
-      department: "Operations",
-      lastActive: "3 hours ago",
-      status: "active"
-    }
-  ];
+  const [users, setUsers] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const getRoleDisplay = (role: string) => {
-    return role.split("_").map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(" ");
-  };
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const { data } = await supabase
+          .from('profiles')
+          .select(`
+            *,
+            user_roles(role)
+          `)
+          .order('created_at', { ascending: false });
+        setUsers(data || []);
+      } catch (error) {
+        console.error('Error fetching users:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUsers();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading users...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -58,13 +53,10 @@ export default function UserManagement() {
         <div>
           <h1 className="text-3xl font-bold tracking-tight">User Management</h1>
           <p className="text-muted-foreground mt-2">
-            Manage users, roles, and access permissions across organizations
+            Manage user accounts, roles, and permissions across the organization
           </p>
         </div>
-        <Button>
-          <UserPlus className="w-4 h-4 mr-2" />
-          Invite User
-        </Button>
+        <InviteUserForm />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -74,37 +66,42 @@ export default function UserManagement() {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">1,500</div>
+            <div className="text-2xl font-bold">{users.length}</div>
             <p className="text-xs text-muted-foreground">Across all organizations</p>
           </CardContent>
         </Card>
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Active Users</CardTitle>
-            <Users className="h-4 w-4 text-green-600" />
+            <UserCheck className="h-4 w-4 text-success" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">1,247</div>
-            <p className="text-xs text-muted-foreground">Active in last 30 days</p>
+            <div className="text-2xl font-bold text-success">{users.length}</div>
+            <p className="text-xs text-muted-foreground">Currently active</p>
           </CardContent>
         </Card>
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Admin Users</CardTitle>
-            <Shield className="h-4 w-4 text-muted-foreground" />
+            <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">42</div>
-            <p className="text-xs text-muted-foreground">With elevated privileges</p>
+            <div className="text-2xl font-bold">
+              {users.filter(u => u.user_roles?.[0]?.role === 'super_admin').length}
+            </div>
+            <p className="text-xs text-muted-foreground">Super admins</p>
           </CardContent>
         </Card>
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Pending Invites</CardTitle>
-            <Clock className="h-4 w-4 text-yellow-600" />
+            <Mail className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">8</div>
+            <div className="text-2xl font-bold">0</div>
             <p className="text-xs text-muted-foreground">Awaiting acceptance</p>
           </CardContent>
         </Card>
@@ -112,55 +109,43 @@ export default function UserManagement() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Users</CardTitle>
-          <CardDescription>
-            Manage user accounts and role assignments
-          </CardDescription>
+          <CardTitle>User Directory</CardTitle>
+          <CardDescription>All platform users with their roles and assignments</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            {users.map((user) => (
-              <div
-                key={user.id}
-                className="flex items-center justify-between p-4 rounded-lg border hover:bg-accent/50 transition-colors"
-              >
-                <div className="flex items-center gap-4">
-                  <Avatar>
-                    <AvatarFallback>
-                      {user.name.split(" ").map(n => n[0]).join("")}
+          <div className="space-y-3">
+            {users.length > 0 ? users.map((user) => (
+              <div key={user.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent/50 transition-colors">
+                <div className="flex items-center space-x-4">
+                  <Avatar className="h-10 w-10">
+                    <AvatarFallback className="bg-primary text-primary-foreground">
+                      {user.first_name?.[0]}{user.last_name?.[0]}
                     </AvatarFallback>
                   </Avatar>
-                  <div>
-                    <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-semibold">{user.name}</h3>
-                      <Badge variant="outline">{getRoleDisplay(user.role)}</Badge>
-                      <Badge variant="default" className="bg-green-600">
-                        {user.status}
-                      </Badge>
+                  <div className="space-y-1">
+                    <div className="flex items-center space-x-2">
+                      <p className="text-sm font-medium">{user.first_name} {user.last_name}</p>
+                      {user.user_roles?.[0]?.role && (
+                        <Badge variant="secondary">
+                          {getRoleDisplay(user.user_roles[0].role)}
+                        </Badge>
+                      )}
                     </div>
-                    <p className="text-sm text-muted-foreground">{user.email}</p>
-                    <div className="flex items-center gap-4 mt-1 text-xs text-muted-foreground">
-                      <span>{user.organization}</span>
-                      <span>•</span>
-                      <span>{user.department}</span>
-                      <span>•</span>
-                      <span className="flex items-center gap-1">
-                        <Clock className="w-3 h-3" />
-                        {user.lastActive}
-                      </span>
+                    <div className="flex items-center space-x-4 text-xs text-muted-foreground">
+                      <span>{user.email}</span>
+                      {user.department && <><span>•</span><span>{user.department}</span></>}
+                      {user.job_title && <><span>•</span><span>{user.job_title}</span></>}
                     </div>
                   </div>
                 </div>
-                <div className="flex gap-2">
-                  <Button variant="outline" size="sm">
-                    Edit
-                  </Button>
-                  <Button variant="ghost" size="sm">
-                    Audit Log
-                  </Button>
+                <div className="flex space-x-2">
+                  <Button variant="outline" size="sm">Edit</Button>
+                  <Button variant="ghost" size="sm">Audit Log</Button>
                 </div>
               </div>
-            ))}
+            )) : (
+              <p className="text-center text-muted-foreground py-8">No users found. Click "Invite User" to add users.</p>
+            )}
           </div>
         </CardContent>
       </Card>

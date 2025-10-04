@@ -1,50 +1,43 @@
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Building2, MapPin, Users, Plus } from "lucide-react";
+import { Building2, MapPin, Users } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { AddOrganizationForm } from "@/components/forms/AddOrganizationForm";
 
 export default function Organizations() {
-  const organizations = [
-    {
-      id: 1,
-      name: "AkzoNobel Global",
-      type: "parent",
-      region: "Global HQ",
-      country: "Netherlands",
-      users: 150,
-      children: 3
-    },
-    {
-      id: 2,
-      name: "AkzoNobel Americas",
-      type: "regional",
-      region: "Americas",
-      country: "United States",
-      users: 450,
-      children: 12,
-      parent: "AkzoNobel Global"
-    },
-    {
-      id: 3,
-      name: "AkzoNobel Europe",
-      type: "regional",
-      region: "Europe",
-      country: "United Kingdom",
-      users: 380,
-      children: 15,
-      parent: "AkzoNobel Global"
-    },
-    {
-      id: 4,
-      name: "AkzoNobel Asia-Pacific",
-      type: "regional",
-      region: "Asia-Pacific",
-      country: "Singapore",
-      users: 520,
-      children: 18,
-      parent: "AkzoNobel Global"
-    }
-  ];
+  const [organizations, setOrganizations] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchOrganizations = async () => {
+      try {
+        const { data } = await supabase
+          .from('organizations')
+          .select('*')
+          .order('name');
+        setOrganizations(data || []);
+      } catch (error) {
+        console.error('Error fetching organizations:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchOrganizations();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading organizations...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -55,10 +48,7 @@ export default function Organizations() {
             Manage multi-organization hierarchy and access controls
           </p>
         </div>
-        <Button>
-          <Plus className="w-4 h-4 mr-2" />
-          Add Organization
-        </Button>
+        <AddOrganizationForm />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -68,37 +58,46 @@ export default function Organizations() {
             <Building2 className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">48</div>
-            <p className="text-xs text-muted-foreground">Across 3 regions</p>
+            <div className="text-2xl font-bold">{organizations.length}</div>
+            <p className="text-xs text-muted-foreground">
+              Across all levels
+            </p>
           </CardContent>
         </Card>
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Regional Hubs</CardTitle>
             <MapPin className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">3</div>
-            <p className="text-xs text-muted-foreground">Americas, Europe, APAC</p>
+            <div className="text-2xl font-bold">
+              {organizations.filter(o => o.organization_type === 'regional_hub').length}
+            </div>
+            <p className="text-xs text-muted-foreground">Regional offices</p>
           </CardContent>
         </Card>
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Manufacturing Sites</CardTitle>
             <Building2 className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">45</div>
+            <div className="text-2xl font-bold">
+              {organizations.filter(o => o.organization_type === 'manufacturing_site').length}
+            </div>
             <p className="text-xs text-muted-foreground">Global facilities</p>
           </CardContent>
         </Card>
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Users</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">1,500</div>
+            <div className="text-2xl font-bold">-</div>
             <p className="text-xs text-muted-foreground">Active system users</p>
           </CardContent>
         </Card>
@@ -113,48 +112,48 @@ export default function Organizations() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {organizations.map((org) => (
-              <div
-                key={org.id}
-                className="p-4 rounded-lg border hover:bg-accent/50 transition-colors"
-                style={{ marginLeft: org.type !== "parent" ? "2rem" : "0" }}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-primary/10 rounded-lg">
-                      <Building2 className="w-5 h-5 text-primary" />
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2 mb-1">
-                        <h3 className="font-semibold">{org.name}</h3>
-                        <Badge variant={org.type === "parent" ? "default" : "secondary"}>
-                          {org.type}
-                        </Badge>
+            {organizations.length > 0 ? (
+              organizations.map((org) => (
+                <div
+                  key={org.id}
+                  className="p-4 rounded-lg border hover:bg-accent/50 transition-colors"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-primary/10 rounded-lg">
+                        <Building2 className="w-5 h-5 text-primary" />
                       </div>
-                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                        <span className="flex items-center gap-1">
-                          <MapPin className="w-3 h-3" />
-                          {org.country}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <Users className="w-3 h-3" />
-                          {org.users} users
-                        </span>
-                        {org.children && (
-                          <span className="flex items-center gap-1">
-                            <Building2 className="w-3 h-3" />
-                            {org.children} sites
-                          </span>
-                        )}
+                      <div>
+                        <div className="flex items-center gap-2 mb-1">
+                          <h3 className="font-semibold">{org.name}</h3>
+                          <Badge variant="secondary">
+                            {org.organization_type.replace(/_/g, ' ')}
+                          </Badge>
+                        </div>
+                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                          {org.country && (
+                            <span className="flex items-center gap-1">
+                              <MapPin className="w-3 h-3" />
+                              {org.country}
+                            </span>
+                          )}
+                          {org.region && (
+                            <span>{org.region}</span>
+                          )}
+                        </div>
                       </div>
                     </div>
+                    <Button variant="outline" size="sm">
+                      Manage
+                    </Button>
                   </div>
-                  <Button variant="outline" size="sm">
-                    Manage
-                  </Button>
                 </div>
-              </div>
-            ))}
+              ))
+            ) : (
+              <p className="text-center text-muted-foreground py-8">
+                No organizations found. Click "Add Organization" to get started.
+              </p>
+            )}
           </div>
         </CardContent>
       </Card>
