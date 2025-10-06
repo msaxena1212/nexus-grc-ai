@@ -31,9 +31,11 @@ import { CalendarIcon, Plus, User, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
+import { supabase } from "@/integrations/supabase/client";
 
 interface AddAuditFormProps {
   children?: React.ReactNode;
+  onSuccess?: () => void;
 }
 
 const teamMembers = [
@@ -45,7 +47,7 @@ const teamMembers = [
   { id: "6", name: "John Smith", role: "Lead Auditor", email: "john.s@company.com" },
 ];
 
-export function AddAuditForm({ children }: AddAuditFormProps) {
+export function AddAuditForm({ children, onSuccess }: AddAuditFormProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [startDate, setStartDate] = useState<Date>();
@@ -79,10 +81,10 @@ export function AddAuditForm({ children }: AddAuditFormProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.auditName || !formData.auditType || !formData.leadAuditor || selectedAuditors.length === 0) {
+    if (!formData.auditName || !formData.auditType) {
       toast({
         title: "Validation Error",
-        description: "Please fill in all required fields and assign at least one auditor.",
+        description: "Please fill in audit name and type.",
         variant: "destructive",
       });
       return;
@@ -90,34 +92,68 @@ export function AddAuditForm({ children }: AddAuditFormProps) {
 
     setLoading(true);
     
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    const assignedAuditors = teamMembers.filter(member => selectedAuditors.includes(member.id));
-    
-    toast({
-      title: "Audit Created",
-      description: `Audit "${formData.auditName}" has been created and assigned to ${assignedAuditors.length} team members. Notifications sent to all assigned auditors.`,
-    });
-    
-    setLoading(false);
-    setOpen(false);
-    
-    // Reset form
-    setFormData({
-      auditName: "",
-      description: "",
-      auditType: "",
-      scope: "",
-      objectives: "",
-      riskRating: "",
-      department: "",
-      leadAuditor: "",
-      budget: ""
-    });
-    setSelectedAuditors([]);
-    setStartDate(undefined);
-    setEndDate(undefined);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
+
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('organization_id')
+        .eq('id', user.id)
+        .single();
+
+      if (!profile?.organization_id) throw new Error("No organization found");
+
+      const { error } = await supabase
+        .from('audits')
+        .insert([{
+          title: formData.auditName,
+          audit_type: formData.auditType,
+          scope: formData.scope || null,
+          objectives: formData.objectives || null,
+          risk_rating: formData.riskRating || null,
+          budget: formData.budget ? Number(formData.budget) : null,
+          start_date: startDate ? format(startDate, 'yyyy-MM-dd') : null,
+          end_date: endDate ? format(endDate, 'yyyy-MM-dd') : null,
+          organization_id: profile.organization_id,
+          created_by: user.id,
+          status: 'planned' as const
+        }]);
+
+      if (error) throw error;
+
+      toast({
+        title: "Audit Created",
+        description: `Audit "${formData.auditName}" has been created successfully.`,
+      });
+      
+      setOpen(false);
+      setFormData({
+        auditName: "",
+        description: "",
+        auditType: "",
+        scope: "",
+        objectives: "",
+        riskRating: "",
+        department: "",
+        leadAuditor: "",
+        budget: ""
+      });
+      setSelectedAuditors([]);
+      setStartDate(undefined);
+      setEndDate(undefined);
+
+      onSuccess?.();
+    } catch (error: any) {
+      console.error('Error creating audit:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to create audit.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const selectedAuditorDetails = teamMembers.filter(member => selectedAuditors.includes(member.id));

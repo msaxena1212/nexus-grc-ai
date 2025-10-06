@@ -105,8 +105,8 @@ export default function AuditorDashboard() {
           </p>
         </div>
         <div className="flex gap-2">
-          <Button onClick={() => navigate('/audit')}>View All Audits</Button>
-          <Button onClick={() => navigate('/risk')} variant="outline">View Risks</Button>
+          <Button onClick={() => navigate('/audit')}>Manage Audits</Button>
+          <Button onClick={() => navigate('/compliance')} variant="outline">Compliance</Button>
         </div>
       </div>
 

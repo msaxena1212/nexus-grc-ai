@@ -14,6 +14,147 @@ export type Database = {
   }
   public: {
     Tables: {
+      audit_findings: {
+        Row: {
+          audit_id: string
+          category: string
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          due_date: string | null
+          evidence_url: string | null
+          finding_number: string
+          id: string
+          management_response: string | null
+          organization_id: string
+          owner_id: string | null
+          recommendation: string | null
+          resolution_date: string | null
+          root_cause: string | null
+          severity: string
+          status: string
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          audit_id: string
+          category: string
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          due_date?: string | null
+          evidence_url?: string | null
+          finding_number: string
+          id?: string
+          management_response?: string | null
+          organization_id: string
+          owner_id?: string | null
+          recommendation?: string | null
+          resolution_date?: string | null
+          root_cause?: string | null
+          severity: string
+          status?: string
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          audit_id?: string
+          category?: string
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          due_date?: string | null
+          evidence_url?: string | null
+          finding_number?: string
+          id?: string
+          management_response?: string | null
+          organization_id?: string
+          owner_id?: string | null
+          recommendation?: string | null
+          resolution_date?: string | null
+          root_cause?: string | null
+          severity?: string
+          status?: string
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "audit_findings_audit_id_fkey"
+            columns: ["audit_id"]
+            isOneToOne: false
+            referencedRelation: "audits"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "audit_findings_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      audit_logs: {
+        Row: {
+          audit_id: string
+          description: string | null
+          evidence_url: string | null
+          id: string
+          log_type: string
+          logged_at: string | null
+          logged_by: string
+          metadata: Json | null
+          organization_id: string
+          reference_id: string | null
+          test_result: string | null
+          title: string
+        }
+        Insert: {
+          audit_id: string
+          description?: string | null
+          evidence_url?: string | null
+          id?: string
+          log_type: string
+          logged_at?: string | null
+          logged_by: string
+          metadata?: Json | null
+          organization_id: string
+          reference_id?: string | null
+          test_result?: string | null
+          title: string
+        }
+        Update: {
+          audit_id?: string
+          description?: string | null
+          evidence_url?: string | null
+          id?: string
+          log_type?: string
+          logged_at?: string | null
+          logged_by?: string
+          metadata?: Json | null
+          organization_id?: string
+          reference_id?: string | null
+          test_result?: string | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "audit_logs_audit_id_fkey"
+            columns: ["audit_id"]
+            isOneToOne: false
+            referencedRelation: "audits"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "audit_logs_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       audit_team_members: {
         Row: {
           assigned_at: string | null
