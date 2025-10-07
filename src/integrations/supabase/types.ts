@@ -984,6 +984,42 @@ export type Database = {
           },
         ]
       }
+      role_permissions: {
+        Row: {
+          can_create: boolean | null
+          can_delete: boolean | null
+          can_update: boolean | null
+          can_view: boolean | null
+          created_at: string | null
+          feature_key: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          updated_at: string | null
+        }
+        Insert: {
+          can_create?: boolean | null
+          can_delete?: boolean | null
+          can_update?: boolean | null
+          can_view?: boolean | null
+          created_at?: string | null
+          feature_key: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          updated_at?: string | null
+        }
+        Update: {
+          can_create?: boolean | null
+          can_delete?: boolean | null
+          can_update?: boolean | null
+          can_view?: boolean | null
+          created_at?: string | null
+          feature_key?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           assigned_at: string | null
@@ -1027,6 +1063,14 @@ export type Database = {
       get_user_organization: {
         Args: { _user_id: string }
         Returns: string
+      }
+      has_feature_permission: {
+        Args: {
+          _feature_key: string
+          _permission_type: string
+          _user_id: string
+        }
+        Returns: boolean
       }
       has_role: {
         Args: {

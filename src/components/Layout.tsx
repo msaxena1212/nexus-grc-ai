@@ -22,35 +22,35 @@ import {
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
-import { useUserRole } from "@/hooks/useUserRole";
+import { usePermissions } from "@/hooks/usePermissions";
+
 const NAV_ITEMS = [
-  { name: "Dashboard", href: "/", icon: Home },
-  { name: "Risk Management", href: "/risk", icon: Shield },
-  { name: "Compliance", href: "/compliance", icon: FileCheck },
-  { name: "Audit", href: "/audit", icon: Search },
-  { name: "Litigation", href: "/litigation", icon: Scale },
-  { name: "Policy", href: "/policy", icon: FileText },
-  { name: "Incidents", href: "/incidents", icon: AlertTriangle },
-  { name: "Analytics", href: "/analytics", icon: BarChart3 },
-  { name: "Chemicals", href: "/chemicals", icon: Beaker },
-  { name: "Environmental", href: "/environmental", icon: Droplets },
-  { name: "Products", href: "/products", icon: Package },
-  { name: "Organizations", href: "/organizations", icon: Building2 },
-  { name: "Users", href: "/users", icon: Users },
+  { name: "Dashboard", href: "/", icon: Home, feature: null },
+  { name: "Risk Management", href: "/risk", icon: Shield, feature: "risks" },
+  { name: "Compliance", href: "/compliance", icon: FileCheck, feature: "compliance" },
+  { name: "Audit", href: "/audit", icon: Search, feature: "audits" },
+  { name: "Litigation", href: "/litigation", icon: Scale, feature: "litigation" },
+  { name: "Policy", href: "/policy", icon: FileText, feature: "policies" },
+  { name: "Incidents", href: "/incidents", icon: AlertTriangle, feature: "incidents" },
+  { name: "Analytics", href: "/analytics", icon: BarChart3, feature: "analytics" },
+  { name: "Chemicals", href: "/chemicals", icon: Beaker, feature: "chemicals" },
+  { name: "Environmental", href: "/environmental", icon: Droplets, feature: "environmental" },
+  { name: "Products", href: "/products", icon: Package, feature: "products" },
+  { name: "Organizations", href: "/organizations", icon: Building2, feature: "organizations" },
+  { name: "Users", href: "/users", icon: Users, feature: "users" },
 ];
 
 export default function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
   const { signOut } = useAuth();
-  const { role } = useUserRole();
+  const { canView, loading: permissionsLoading } = usePermissions();
+
   const filteredNav = useMemo(() => {
-    if (role === 'audit_manager') {
-      const allowed = new Set(['Dashboard', 'Risk Management', 'Compliance', 'Audit']);
-      return NAV_ITEMS.filter((item) => allowed.has(item.name));
-    }
-    return NAV_ITEMS;
-  }, [role]);
+    if (permissionsLoading) return NAV_ITEMS;
+    return NAV_ITEMS.filter(item => !item.feature || canView(item.feature));
+  }, [canView, permissionsLoading]);
+
   return (
     <div className="min-h-screen bg-background">
       {/* Mobile sidebar backdrop */}
