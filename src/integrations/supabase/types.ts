@@ -1060,10 +1060,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      get_user_organization: {
-        Args: { _user_id: string }
-        Returns: string
-      }
+      get_user_organization: { Args: { _user_id: string }; Returns: string }
       has_feature_permission: {
         Args: {
           _feature_key: string
