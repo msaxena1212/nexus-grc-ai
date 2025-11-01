@@ -120,48 +120,76 @@ Deno.serve(async (req) => {
     const results = []
 
     for (const user of mockUsers) {
-      // Create user in auth
-      const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
-        email: user.email,
-        password: user.password,
-        email_confirm: true,
-        user_metadata: {
-          first_name: user.firstName,
-          last_name: user.lastName
+      // Check if user exists
+      const { data: existingUsers } = await supabaseAdmin.auth.admin.listUsers()
+      const existingUser = existingUsers?.users.find(u => u.email === user.email)
+      
+      let userId: string
+      
+      if (existingUser) {
+        // Update existing user
+        const { data: updateData, error: updateError } = await supabaseAdmin.auth.admin.updateUserById(
+          existingUser.id,
+          {
+            password: user.password,
+            email_confirm: true,
+            user_metadata: {
+              first_name: user.firstName,
+              last_name: user.lastName
+            }
+          }
+        )
+        
+        if (updateError) {
+          results.push({ email: user.email, status: 'error', error: updateError.message })
+          continue
         }
-      })
+        userId = existingUser.id
+      } else {
+        // Create new user
+        const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
+          email: user.email,
+          password: user.password,
+          email_confirm: true,
+          user_metadata: {
+            first_name: user.firstName,
+            last_name: user.lastName
+          }
+        })
 
-      if (authError) {
-        results.push({ email: user.email, status: 'error', error: authError.message })
-        continue
+        if (authError) {
+          results.push({ email: user.email, status: 'error', error: authError.message })
+          continue
+        }
+        userId = authData.user.id
       }
 
-      // Update profile
+      // Upsert profile
       const { error: profileError } = await supabaseAdmin
         .from('profiles')
-        .update({
+        .upsert({
+          id: userId,
           first_name: user.firstName,
           last_name: user.lastName,
           email: user.email,
           job_title: user.jobTitle,
           department: user.department,
           organization_id: organizationId
-        })
-        .eq('id', authData.user.id)
+        }, { onConflict: 'id' })
 
       if (profileError) {
         results.push({ email: user.email, status: 'profile_error', error: profileError.message })
         continue
       }
 
-      // Assign role
+      // Upsert role
       const { error: roleError } = await supabaseAdmin
         .from('user_roles')
-        .insert({
-          user_id: authData.user.id,
+        .upsert({
+          user_id: userId,
           organization_id: organizationId,
           role: user.role
-        })
+        }, { onConflict: 'user_id,role' })
 
       if (roleError) {
         results.push({ email: user.email, status: 'role_error', error: roleError.message })
